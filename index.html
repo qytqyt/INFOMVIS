@@ -5,14 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eurovision Map</title>
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f9f9f9;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            width: 90%;
+            height: 90%;
+            border: 1px solid #000;
+            box-sizing: border-box;
+        }
+
+        .map-container {
+            flex: 3;
+            border-right: 1px solid #000;
+        }
+
+        .side-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #piramid-container, #scatterplot-container {
+            flex: 1;
+            border-bottom: 1px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        #scatterplot-container {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Eurovision Participating Countries</h1>
-
-<div class="map-container" id="map"></div>
-<div id="australia-container">
-    <svg id="australia-svg" width="100" height="100"></svg>
+<div class="container">
+    <div class="map-container" id="map"></div>
+    <div class="side-container">
+        <div id="piramid-container">
+            <p>Piramid</p>
+        </div>
+        <div id="scatterplot-container">
+            <p>Scatterplot</p>
+        </div>
+    </div>
 </div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
