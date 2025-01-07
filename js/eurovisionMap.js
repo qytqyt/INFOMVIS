@@ -127,6 +127,7 @@ d3.csv('resources/votes.csv').then(function(voteData) {
             );
 
             // Draw the Eurovision countries
+            // Draw the Eurovision countries
             svg.selectAll('path')
                 .data(eurovisionData)
                 .enter()
@@ -135,8 +136,10 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                 .attr('class', 'country')
                 .style('fill', '#69b3a2') // Default color
                 .on('mouseover', function(event, d) {
-                    // Temporarily change color on hover
-                    d3.select(this).style('fill', '#ff6347'); // Highlight on hover
+                    // Only change the color if the country is not clicked
+                    if (!d3.select(this).classed('clicked')) {
+                        d3.select(this).style('fill', '#ff6347'); // Highlight on hover
+                    }
                     tooltip.style('opacity', 1)
                         .html(`<strong>Country:</strong> ${d.properties.name}`)
                         .style('left', (event.pageX + 10) + 'px')
@@ -147,8 +150,10 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                         .style('top', (event.pageY - 20) + 'px');
                 })
                 .on('mouseout', function() {
-                    // Revert to the original color
-                    d3.select(this).style('fill', '#69b3a2');
+                    // Revert to the original color only if the country is not clicked
+                    if (!d3.select(this).classed('clicked')) {
+                        d3.select(this).style('fill', '#69b3a2');
+                    }
                     tooltip.style('opacity', 0);
                 })
                 .on('click', function(event, d) {
@@ -164,21 +169,25 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                         });
                     }
 
-                    // Reset all colors
+                    // Reset all colors and remove the clicked class
                     d3.selectAll('.country')
-                        .style('fill', '#69b3a2');
+                        .style('fill', '#69b3a2')
+                        .classed('clicked', false);
 
                     // Highlight the clicked country
                     d3.select(this)
-                        .style('fill', '#ff6347'); // Highlight clicked country
+                        .style('fill', '#ff6347') // Highlight clicked country
+                        .classed('clicked', true);
 
                     // Highlight countries that gave more than 100 points
                     svg.selectAll('.country')
                         .filter(function(d) {
                             return voters.includes(d.properties.name);
                         })
-                        .style('fill', '#ff0000'); // Highlight voters in red
+                        .style('fill', '#ff0000') // Highlight voters in red
+                        .classed('clicked', true); // Mark voters as clicked
                 });
+
 
         })
         .catch(function(error) {
