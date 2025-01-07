@@ -126,8 +126,15 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                 eurovisionCountries.includes(d.properties.name)
             );
 
-            // Draw the Eurovision countries
-            // Draw the Eurovision countries
+            function calculateColorIntensity(points, minPoints, maxPoints) {
+                // Ensure the range is not zero to avoid division by zero
+                if (maxPoints === minPoints) {
+                    return 50; // Default to minimum intensity if all points are the same
+                }
+                // Normalize points to a scale of 50 to 100, exaggerating differences
+                return 50 + ((points - minPoints) / (maxPoints - minPoints)) * 50 * 2; // Scale difference more
+            }
+
             svg.selectAll('path')
                 .data(eurovisionData)
                 .enter()
@@ -136,7 +143,6 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                 .attr('class', 'country')
                 .style('fill', '#69b3a2') // Default color
                 .on('mouseover', function(event, d) {
-                    // Only change the color if the country is not clicked
                     if (!d3.select(this).classed('clicked')) {
                         d3.select(this).style('fill', '#ff6347'); // Highlight on hover
                     }
@@ -150,7 +156,6 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                         .style('top', (event.pageY - 20) + 'px');
                 })
                 .on('mouseout', function() {
-                    // Revert to the original color only if the country is not clicked
                     if (!d3.select(this).classed('clicked')) {
                         d3.select(this).style('fill', '#69b3a2');
                     }
@@ -161,10 +166,15 @@ d3.csv('resources/votes.csv').then(function(voteData) {
 
                     // Aggregate points from all countries to the clicked country
                     const voters = [];
+                    let maxPoints = 0;
+                    let minPoints = Infinity;
+
                     if (votesByCountry[clickedCountry]) {
                         Object.entries(votesByCountry[clickedCountry]).forEach(([fromCountry, totalPoints]) => {
                             if (totalPoints > 100) {
-                                voters.push(fromCountry);
+                                voters.push({ country: fromCountry, points: totalPoints });
+                                maxPoints = Math.max(maxPoints, totalPoints);
+                                minPoints = Math.min(minPoints, totalPoints);
                             }
                         });
                     }
@@ -174,22 +184,28 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                         .style('fill', '#69b3a2')
                         .classed('clicked', false);
 
-                    // Highlight the clicked country
+                    // Highlight the clicked country with maximum intensity
                     d3.select(this)
-                        .style('fill', '#ff6347') // Highlight clicked country
+                        .style('fill', 'rgb(255, 0, 0)') // Strongest red for clicked country
                         .classed('clicked', true);
 
                     // Highlight countries that gave more than 100 points
                     svg.selectAll('.country')
                         .filter(function(d) {
-                            return voters.includes(d.properties.name);
+                            const voter = voters.find(v => v.country === d.properties.name);
+                            if (voter) {
+                                const intensity = calculateColorIntensity(voter.points, minPoints, maxPoints);
+                                const redValue = Math.round(255 - (intensity / 100) * 255); // Reduce red intensity
+                                const greenValue = Math.round((intensity / 100) * 50); // Slight green adjustment
+                                const colorValue = `rgb(${255 - redValue}, ${greenValue}, ${greenValue})`; // Adjust color dynamically
+                                d3.select(this).style('fill', colorValue);
+                                return true;
+                            }
+                            return false;
                         })
-                        .style('fill', '#ff0000') // Highlight voters in red
                         .classed('clicked', true); // Mark voters as clicked
                 });
 
-
-            console.log(geoData.features.map(d => d.properties.name));
         })
         .catch(function(error) {
             console.error('Error loading the GeoJSON data:', error);
