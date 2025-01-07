@@ -127,7 +127,6 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                 return 100 - ((points - minPoints) / (maxPoints - minPoints)) * 75;
             }
 
-            // Update the click event
             svg.selectAll('path')
                 .data(eurovisionData)
                 .enter()
@@ -141,7 +140,6 @@ d3.csv('resources/votes.csv').then(function(voteData) {
 
                     let votesInfo = '';
                     if (clickedCountry && votesByCountry[d.properties.name]) {
-                        // Retrieve total points the hovered country (d.properties.name) gave to the clicked country
                         const totalVotes = votesByCountry[d.properties.name][clickedCountry] || 0;
 
                         if (totalVotes > 0) {
@@ -150,7 +148,7 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                     }
 
                     if (!d3.select(this).classed('clicked')) {
-                        d3.select(this).style('fill', '#ff6347'); // Highlight on hover
+                        d3.select(this).style('fill', '#ff6347');
                     }
 
                     tooltip.style('opacity', 1)
