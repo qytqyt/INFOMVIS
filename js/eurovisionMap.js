@@ -126,15 +126,17 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                 eurovisionCountries.includes(d.properties.name)
             );
 
+            // Helper function to calculate color intensity
             function calculateColorIntensity(points, minPoints, maxPoints) {
-                // Ensure the range is not zero to avoid division by zero
                 if (maxPoints === minPoints) {
-                    return 50; // Default to minimum intensity if all points are the same
+                    // If all votes are similar, use mid-intensity (75)
+                    return 75;
                 }
-                // Normalize points to a scale of 50 to 100, exaggerating differences
-                return 50 + ((points - minPoints) / (maxPoints - minPoints)) * 50 * 2; // Scale difference more
+                // Normalize points to a scale of 50 to 100, with adjustments for large differences
+                return 100 - ((points - minPoints) / (maxPoints - minPoints)) * 75;
             }
 
+            // Update the click event
             svg.selectAll('path')
                 .data(eurovisionData)
                 .enter()
@@ -143,11 +145,21 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                 .attr('class', 'country')
                 .style('fill', '#69b3a2') // Default color
                 .on('mouseover', function(event, d) {
+                    // Check if a country is clicked
+                    const clickedCountry = d3.select('.country.clicked').data()[0]?.properties.name;
+
+                    let votesInfo = '';
+                    if (clickedCountry && votesByCountry[clickedCountry]) {
+                        const totalVotes = votesByCountry[clickedCountry][d.properties.name] || 0;
+                        votesInfo = `<br><strong>Votes Given:</strong> ${totalVotes}`;
+                    }
+
                     if (!d3.select(this).classed('clicked')) {
                         d3.select(this).style('fill', '#ff6347'); // Highlight on hover
                     }
+
                     tooltip.style('opacity', 1)
-                        .html(`<strong>Country:</strong> ${d.properties.name}`)
+                        .html(`<strong>Country:</strong> ${d.properties.name}${votesInfo}`)
                         .style('left', (event.pageX + 10) + 'px')
                         .style('top', (event.pageY - 20) + 'px');
                 })
@@ -184,9 +196,9 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                         .style('fill', '#69b3a2')
                         .classed('clicked', false);
 
-                    // Highlight the clicked country with maximum intensity
+                    // Highlight the clicked country in black
                     d3.select(this)
-                        .style('fill', 'rgb(255, 0, 0)') // Strongest red for clicked country
+                        .style('fill', 'rgb(0, 0, 0)') // Black for clicked country
                         .classed('clicked', true);
 
                     // Highlight countries that gave more than 100 points
@@ -194,10 +206,11 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                         .filter(function(d) {
                             const voter = voters.find(v => v.country === d.properties.name);
                             if (voter) {
+                                // Calculate color intensity
                                 const intensity = calculateColorIntensity(voter.points, minPoints, maxPoints);
-                                const redValue = Math.round(255 - (intensity / 100) * 255); // Reduce red intensity
-                                const greenValue = Math.round((intensity / 100) * 50); // Slight green adjustment
-                                const colorValue = `rgb(${255 - redValue}, ${greenValue}, ${greenValue})`; // Adjust color dynamically
+                                const redValue = Math.round(255 - (intensity / 100) * 255); // Higher intensity = stronger red
+                                const greenValue = Math.round((intensity / 100) * 80); // Adjust green for softer red
+                                const colorValue = `rgb(${255 - redValue}, ${greenValue}, ${greenValue})`;
                                 d3.select(this).style('fill', colorValue);
                                 return true;
                             }
@@ -205,6 +218,7 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                         })
                         .classed('clicked', true); // Mark voters as clicked
                 });
+
 
         })
         .catch(function(error) {
