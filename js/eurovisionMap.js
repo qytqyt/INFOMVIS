@@ -145,19 +145,26 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                 .attr('class', 'country')
                 .style('fill', '#69b3a2') // Default color
                 .on('mouseover', function(event, d) {
-                    // Check if a country is clicked
+                    // Get the clicked country
                     const clickedCountry = d3.select('.country.clicked').data()[0]?.properties.name;
 
                     let votesInfo = '';
                     if (clickedCountry && votesByCountry[clickedCountry]) {
+                        // Retrieve total points the hovered country (d.properties.name) gave to the clicked country
                         const totalVotes = votesByCountry[clickedCountry][d.properties.name] || 0;
-                        votesInfo = `<br><strong>Votes Given:</strong> ${totalVotes}`;
+
+                        // Show the votes info if available
+                        if (totalVotes > 0) {
+                            votesInfo = `<br><strong>Votes Given:</strong> ${totalVotes}`;
+                        }
                     }
 
+                    // Highlight the hovered country (if not clicked)
                     if (!d3.select(this).classed('clicked')) {
                         d3.select(this).style('fill', '#ff6347'); // Highlight on hover
                     }
 
+                    // Display the tooltip with the votes information
                     tooltip.style('opacity', 1)
                         .html(`<strong>Country:</strong> ${d.properties.name}${votesInfo}`)
                         .style('left', (event.pageX + 10) + 'px')
@@ -187,36 +194,34 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                                 voters.push({ country: fromCountry, points: totalPoints });
                                 maxPoints = Math.max(maxPoints, totalPoints);
                                 minPoints = Math.min(minPoints, totalPoints);
+                                console.log(totalPoints, fromCountry)
                             }
                         });
                     }
 
-                    // Reset all colors and remove the clicked class
                     d3.selectAll('.country')
                         .style('fill', '#69b3a2')
                         .classed('clicked', false);
 
-                    // Highlight the clicked country in black
                     d3.select(this)
                         .style('fill', 'rgb(0, 0, 0)') // Black for clicked country
                         .classed('clicked', true);
 
-                    // Highlight countries that gave more than 100 points
+
                     svg.selectAll('.country')
                         .filter(function(d) {
                             const voter = voters.find(v => v.country === d.properties.name);
                             if (voter) {
-                                // Calculate color intensity
                                 const intensity = calculateColorIntensity(voter.points, minPoints, maxPoints);
-                                const redValue = Math.round(255 - (intensity / 100) * 255); // Higher intensity = stronger red
-                                const greenValue = Math.round((intensity / 100) * 80); // Adjust green for softer red
+                                const redValue = Math.round(255 - (intensity / 100) * 255);
+                                const greenValue = Math.round((intensity / 100) * 80);
                                 const colorValue = `rgb(${255 - redValue}, ${greenValue}, ${greenValue})`;
                                 d3.select(this).style('fill', colorValue);
                                 return true;
                             }
                             return false;
                         })
-                        .classed('clicked', true); // Mark voters as clicked
+                        .classed('clicked', true);
                 });
 
 
