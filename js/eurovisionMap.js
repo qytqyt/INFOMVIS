@@ -61,7 +61,7 @@ const countryCodeToName = {
     'sk': 'Slovakia',
     'sm': 'San Marino',
     'tr': 'Turkey',
-    'ua': 'Ukraine'
+    'ua': 'Ukraine',
 };
 
 
@@ -99,76 +99,92 @@ const zoom = d3.zoom()
 
 svg.call(zoom);
 
-// Load the GeoJSON file for the world map
-d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
-    .then(function(geoData) {
-        // Filter out Australia separately so we can reposition it
-        const australia = geoData.features.filter(d => d.properties.name === 'Australia')[0];
+// Load the voting dataset
+d3.csv('resources/votes.csv').then(function(voteData) {
+    // Aggregate votes for each target country
+    const votesByCountry = {};
+    voteData.forEach(row => {
+        const toCountry = countryCodeToName[row.to_country_id];
+        const fromCountry = countryCodeToName[row.from_country_id];
+        const totalPoints = parseInt(row.total_points, 10); // Parse total points as an integer
 
-        // Remove Australia from the main country list
-        const eurovisionData = geoData.features.filter(d =>
-            eurovisionCountries.includes(d.properties.name) &&
-            d.properties.name !== 'Australia'
-        );
-
-        // Draw the main Eurovision countries (excluding Australia)
-        svg.selectAll('path')
-            .data(eurovisionData)
-            .enter()
-            .append('path')
-            .attr('d', path)
-            .attr('class', 'country')
-            .on('mouseover', function(event, d) {
-                d3.select(this).style('fill', '#ff6347'); // Change fill color on hover
-
-                tooltip.style('opacity', 1)
-                    .html(`<strong>Country:</strong> ${d.properties.name}`)
-                    .style('left', (event.pageX + 10) + 'px')
-                    .style('top', (event.pageY - 20) + 'px');
-            })
-            .on('mousemove', function(event) {
-                tooltip.style('left', (event.pageX + 10) + 'px')
-                    .style('top', (event.pageY - 20) + 'px');
-            })
-            .on('mouseout', function() {
-                d3.select(this).style('fill', '#69b3a2'); // Reset the color
-                tooltip.style('opacity', 0);
-            })
-            .on('click', function(event, d) {
-                alert(`You clicked on ${d.properties.name}`);
-            });
-
-        // Position Australia next to Israel
-        const australiaGroup = svg.append('g')
-            .attr('transform', 'translate(700, 200)'); // Move Australia to the right of Israel
-
-        // Draw Australia's path at the new position
-        australiaGroup.append('path')
-            .datum(australia)
-            .attr('d', path)
-            .attr('class', 'country')
-            .style('fill', '#69b3a2')
-            .on('mouseover', function(event, d) {
-                d3.select(this).style('fill', '#ff6347');
-
-                tooltip.style('opacity', 1)
-                    .html(`<strong>Country:</strong> ${d.properties.name}`)
-                    .style('left', (event.pageX + 10) + 'px')
-                    .style('top', (event.pageY - 20) + 'px');
-            })
-            .on('mousemove', function(event) {
-                tooltip.style('left', (event.pageX + 10) + 'px')
-                    .style('top', (event.pageY - 20) + 'px');
-            })
-            .on('mouseout', function() {
-                d3.select(this).style('fill', '#69b3a2');
-                tooltip.style('opacity', 0);
-            })
-            .on('click', function(event, d) {
-                alert(`You clicked on ${d.properties.name}`);
-            });
-
-    })
-    .catch(function(error) {
-        console.error('Error loading the GeoJSON data:', error);
+        if (toCountry && fromCountry && totalPoints > 0) {
+            if (!votesByCountry[toCountry]) {
+                votesByCountry[toCountry] = {};
+            }
+            if (!votesByCountry[toCountry][fromCountry]) {
+                votesByCountry[toCountry][fromCountry] = 0;
+            }
+            votesByCountry[toCountry][fromCountry] += totalPoints; // Accumulate points
+        }
     });
+
+    // Load the GeoJSON file for the world map
+    d3.json('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson')
+        .then(function(geoData) {
+            const eurovisionData = geoData.features.filter(d =>
+                eurovisionCountries.includes(d.properties.name)
+            );
+
+            // Draw the Eurovision countries
+            svg.selectAll('path')
+                .data(eurovisionData)
+                .enter()
+                .append('path')
+                .attr('d', path)
+                .attr('class', 'country')
+                .style('fill', '#69b3a2') // Default color
+                .on('mouseover', function(event, d) {
+                    // Temporarily change color on hover
+                    d3.select(this).style('fill', '#ff6347'); // Highlight on hover
+                    tooltip.style('opacity', 1)
+                        .html(`<strong>Country:</strong> ${d.properties.name}`)
+                        .style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 20) + 'px');
+                })
+                .on('mousemove', function(event) {
+                    tooltip.style('left', (event.pageX + 10) + 'px')
+                        .style('top', (event.pageY - 20) + 'px');
+                })
+                .on('mouseout', function() {
+                    // Revert to the original color
+                    d3.select(this).style('fill', '#69b3a2');
+                    tooltip.style('opacity', 0);
+                })
+                .on('click', function(event, d) {
+                    const clickedCountry = d.properties.name;
+
+                    // Aggregate points from all countries to the clicked country
+                    const voters = [];
+                    if (votesByCountry[clickedCountry]) {
+                        Object.entries(votesByCountry[clickedCountry]).forEach(([fromCountry, totalPoints]) => {
+                            if (totalPoints > 100) {
+                                voters.push(fromCountry);
+                            }
+                        });
+                    }
+
+                    // Reset all colors
+                    d3.selectAll('.country')
+                        .style('fill', '#69b3a2');
+
+                    // Highlight the clicked country
+                    d3.select(this)
+                        .style('fill', '#ff6347'); // Highlight clicked country
+
+                    // Highlight countries that gave more than 100 points
+                    svg.selectAll('.country')
+                        .filter(function(d) {
+                            return voters.includes(d.properties.name);
+                        })
+                        .style('fill', '#ff0000'); // Highlight voters in red
+                });
+
+        })
+        .catch(function(error) {
+            console.error('Error loading the GeoJSON data:', error);
+        });
+}).catch(function(error) {
+    console.error('Error loading the votes.csv data:', error);
+});
+
