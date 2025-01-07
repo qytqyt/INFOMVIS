@@ -9,7 +9,7 @@ const eurovisionCountries = [
     'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania',
     'Russia', 'San Marino', 'Serbia', 'Serbia and Montenegro', 'Slovakia',
     'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Turkey',
-    'Ukraine', 'United Kingdom'
+    'Ukraine', 'England'
 ];
 const countryCodeToName = {
     'ad': 'Andorra',
@@ -31,7 +31,7 @@ const countryCodeToName = {
     'es': 'Spain',
     'fi': 'Finland',
     'fr': 'France',
-    'gb': 'United Kingdom',
+    'gb': 'England',
     'ge': 'Georgia',
     'gr': 'Greece',
     'hr': 'Croatia',
@@ -189,6 +189,7 @@ d3.csv('resources/votes.csv').then(function(voteData) {
                 });
 
 
+            console.log(geoData.features.map(d => d.properties.name));
         })
         .catch(function(error) {
             console.error('Error loading the GeoJSON data:', error);
