@@ -18,11 +18,22 @@
 
         .container {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             width: 90%;
             height: 90%;
             border: 1px solid #000;
             box-sizing: border-box;
+        }
+
+        .filter-container {
+            padding: 15px;
+            border-bottom: 1px solid #000;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            flex-direction: row;
         }
 
         .map-container {
@@ -48,25 +59,50 @@
         #scatterplot-container {
             border-bottom: none;
         }
+
+        .filters {
+            display: flex;
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="map-container" id="map"></div>
-    <div class="side-container">
-        <div id="piramid-container">
-            <p>Piramid</p>
-        </div>
-        <div id="scatterplot-container">
+    <div class="filter-container">
+        <form>
+            <div id="filter-container"></div>
+        </form>
+    </div>
+    <div class="main-content">
+        <div class="map-container" id="map"></div>
+        <div class="side-container">
+            <div id="piramid-container">
+<!--                <p>Piramid</p>-->
+            </div>
+            <div id="scatterplot-container">
+            </div>
         </div>
     </div>
 </div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="js/eurovisionMap.js"></script>
+<script src="js/eurovisionMap2.js"></script>
 
 <!-- Visualization objects -->
+<script src="js/piramidbuilder.js"></script>
 <script src="js/scatterplot.js"></script>
 
 <!-- Load data, create visualizations -->
