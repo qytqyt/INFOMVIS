@@ -165,7 +165,7 @@ function handleCountryClick(event, d) {
     if (votesByCountry[clickedCountry]) {
         Object.entries(votesByCountry).forEach(([fromCountry, toCountryVotes]) => {
             const totalPoints = toCountryVotes[clickedCountry] || 0;
-            if (totalPoints > 100) {
+            if (totalPoints > 0) {
                 voters.push({ country: fromCountry, points: totalPoints });
                 maxPoints = Math.max(maxPoints, totalPoints);
                 minPoints = Math.min(minPoints, totalPoints);
@@ -195,9 +195,9 @@ function handleCountryClick(event, d) {
             const voter = voters.find(v => v.country === d.properties.name);
             if (voter) {
                 const intensity = calculateColorIntensity(voter.points, minPoints, maxPoints);
-                const redValue = Math.round(255 - (intensity / 100) * 255);
+                const redValue = Math.round((255 - (intensity / 100) * 255));
                 const greenValue = Math.round((intensity / 100) * 50);
-                const colorValue = `rgb(${255 - redValue}, ${greenValue}, ${greenValue})`;
+                const colorValue = `rgb(${(255 - redValue)+100}, ${greenValue}, ${greenValue})`;
 
                 d3.select(this).style('fill', colorValue);
                 return true;
@@ -231,7 +231,7 @@ function calculateColorIntensity(points, minPoints, maxPoints) {
     if (maxPoints === minPoints) {
         return 75;
     }
-    return 100 - ((points - minPoints) / (maxPoints - minPoints)) * 75;
+    return 50 + ((maxPoints - minPoints)/(points - minPoints) ) * 50;
 }
 
 function updateMapVisualization(filteredVotes) {
