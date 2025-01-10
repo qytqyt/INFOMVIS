@@ -178,7 +178,7 @@ function pyramidBuilder(data, target, options) {
 }
 
 // Call the function
-d3.csv("data/eurovision.csv").then(data => {
+d3.csv("data/sampledatapiramid.csv").then(data => {
 	data.forEach(d => {
 		d.tele_points = +d.tele_points;
 		d.jury_points = +d.jury_points;
