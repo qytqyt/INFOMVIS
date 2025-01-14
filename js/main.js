@@ -160,8 +160,7 @@ function updateVisualizations() {
 
     if (scatterplot) {
         const originalData = scatterplot.data;
-        scatterplot.data = filteredContestantData;
-        scatterplot.displayData = scatterplot.transformData();
+        scatterplot.displayData = scatterplot.transformData(filteredContestantData);
         scatterplot.updateVis();
         scatterplot.data = originalData;
     }
@@ -274,6 +273,11 @@ function updateStartYearOptions() {
 
     // Update visualizations
     updateVisualizations();
+}
+
+function countrySelected(d){
+    scatterplot.country = d.properties.name;
+    scatterplot.updateVis();
 }
 
 // Initialize app when document is loaded

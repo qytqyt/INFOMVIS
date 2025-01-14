@@ -155,6 +155,8 @@ function handleMouseOut() {
 }
 
 function handleCountryClick(event, d) {
+    countrySelected(d);
+
     const clickedCountry = d.properties.name;
     const votesByCountry = calculateVotesByCountry(filteredVoteData);
 
