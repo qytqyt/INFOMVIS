@@ -1,137 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eurovision Map</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f9f9f9;
-            overflow: hidden;
-        }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Eurovision Map</title>
+	<link rel="stylesheet" href="css/styles.css">
+	<style>
+		body {
+			margin: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			background-color: #f9f9f9;
+			overflow: hidden;
+		}
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            width: 90%;
-            height: 90%;
-            border: 1px solid #000;
-            box-sizing: border-box;
-        }
+		.container {
+			display: flex;
+			flex-direction: row;
+			width: 90%;
+			height: 90%;
+			border: 1px solid #000;
+			box-sizing: border-box;
+		}
 
-        .filter-container {
-            padding: 15px;
-            border-bottom: 1px solid #000;
-        }
+		.map-container {
+			flex: 3;
+			border-right: 1px solid #000;
+		}
 
-        .main-content {
-            display: flex;
-            flex: 1;
-            flex-direction: row;
-        }
+		.labelAxis {
+			font-size: 20px;
+		}
 
-        .map-container {
-            flex: 3;
-            border-right: 1px solid #000;
-        }
+		.side-container {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+		}
 
-        .side-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+		#piramid-container {
+			flex: 1;
+			border-bottom: 1px solid #000;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			box-sizing: border-box;
+			overflow-y: scroll;
+		}
 
-        #piramid-container, #scatterplot-container {
-            flex: 1;
-            border-bottom: 1px solid #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-sizing: border-box;
-        }
+		#scatterplot-container {
+			flex: 1;
+			border-bottom: 1px solid #000;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			box-sizing: border-box;
+		}
 
-        #scatterplot-container {
-            border-bottom: none;
-        }
-
-        .filters {
-            display: flex;
-            gap: 20px;
-        }
-
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .filter-select {
-            padding: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-    </style>
+		#scatterplot-container {
+			border-bottom: none;
+		}
+	</style>
 </head>
 <body>
 
 <div class="container">
-    <div class="filter-container">
-        <form>
-            <div id="filter-container"></div>
-        </form>
-    </div>
-    <div class="main-content">
-        <div class="map-container" id="map"></div>
-        <div class="side-container">
-            <div id="piramid-container">
-<!--                <p>Piramid</p>-->
-            </div>
-            <div id="scatterplot-container">
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- The Modal -->
-<div id="myModal" class="modal">
-
-    <!-- Modal content -->
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 id="composer-table-title">Composer: </h2>
-        <p id="average-placement">Average placement: </p>
-        <table class = "table" id="composer-table">
-            <thead>
-            <tr>
-                <th>Year</th>
-                <th>Performer</th>
-                <th>Song</th>
-                <th>Composers</th>
-                <th>Country</th>
-                <th>Placement</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <a id="wikipedia-link" href="">Wikipedia entry</a>
-    </div>
-
+	<div class="map-container" id="map"></div>
+	<div class="side-container">
+		<div id="piramid-container">
+		</div>
+		<div id="scatterplot-container">
+		</div>
+	</div>
 </div>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="js/eurovisionMap2.js"></script>
-
-<!-- Visualization objects -->
-<script src="js/piramidbuilder.js"></script>
-<script src="js/scatterplot.js"></script>
 
 <!-- Load data, create visualizations -->
-<script src="js/main.js"></script>
+<script src="js/piramidbuilder.js"></script>
 </body>
 </html>
