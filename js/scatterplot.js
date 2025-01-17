@@ -94,10 +94,10 @@ class Scatterplot {
         vis.country = "";
 
         // Init the margings
-        vis.margin = {top: 10, right: 30, bottom: 30, left: 30};
+        vis.margin = {top: 0, right: 30, bottom: 30, left: 30};
 
         vis.width = document.getElementById(vis.parentElement).getBoundingClientRect().width - vis.margin.left - vis.margin.right;
-        vis.height = document.getElementById(vis.parentElement).getBoundingClientRect().height - vis.margin.top - vis.margin.bottom;
+        vis.height = document.getElementById(vis.parentElement).getBoundingClientRect().height - vis.margin.top - vis.margin.bottom - 60;
 
         // append the svg object to the body of the page
         vis.svg = d3.select("#" + vis.parentElement)
@@ -164,16 +164,18 @@ class Scatterplot {
         //Make the modal closable
         span.onclick = function() {
             modal.style.display = "none";
+            deleteInformation();
         }
 
         window.onclick = function(event) {
             if (event.target == modal) {
                 modal.style.display = "none";
+                deleteInformation();
             }
         }
 
         //Render the text on  screen
-        let table = document.getElementById("composer-table");
+        let table = document.getElementById("composer-table-body");
 
         tableData.allEntries.forEach(entry => {
             // Get the table and insert a new row at the end
@@ -187,12 +189,28 @@ class Scatterplot {
             newRow.insertCell(4).innerHTML = entry.to_country;
             newRow.insertCell(5).innerHTML = entry.place_contest;
         });
-        let title = document.getElementById("composer-table-title");
         document.getElementById("composer-table-title").innerHTML += tableData.composer;
         document.getElementById("average-placement").innerHTML += Math.round(tableData.average_placement);
         document.getElementById("wikipedia-link").href = tableData.wikipedia;
 
+
+        function deleteInformation(){
+            //Empty the text on  screen
+            let trs = document.querySelectorAll('#composer-table-body tr');
+
+            console.log(trs);
+
+            trs.forEach((tr)=>{
+                tr.remove();
+            });
+
+            document.getElementById("composer-table-title").innerHTML = "";
+            document.getElementById("average-placement").innerHTML = "";
+            document.getElementById("wikipedia-link").href = "";
+        }
     }
+
+
 
     //Update the scatterplot
     updateVis() {
