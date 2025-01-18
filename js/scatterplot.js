@@ -94,7 +94,7 @@ class Scatterplot {
         vis.country = "";
 
         // Init the margings
-        vis.margin = {top: 0, right: 30, bottom: 30, left: 30};
+        vis.margin = {top: 10, right: 30, bottom: 50, left: 45};
 
         vis.width = document.getElementById(vis.parentElement).getBoundingClientRect().width - vis.margin.left - vis.margin.right;
         vis.height = document.getElementById(vis.parentElement).getBoundingClientRect().height - vis.margin.top - vis.margin.bottom - 60;
@@ -121,6 +121,13 @@ class Scatterplot {
             .attr("class", "x-axis axis")
             .attr("transform", "translate(0," + vis.height + ")");
 
+        // Add X axis label:
+        vis.svg.append("text")
+            .attr("text-anchor", "middle")
+            .attr("x", vis.width/2)
+            .attr("y", vis.height + vis.margin.top + 30)
+            .text("Amount of appearances");
+
         // Add Y axis
         vis.y = d3.scaleLinear()
             .domain([d3.max(this.displayData, d => d.average_placement) + 1, 1])
@@ -131,6 +138,22 @@ class Scatterplot {
 
         vis.svg.append("g")
             .attr("class", "y-axis axis");
+
+        // Y axis label:
+        vis.svg.append("text")
+            .attr("text-anchor", "middle")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -vis.margin.left + 20)
+            .attr("x", -vis.margin.top - vis.height/2)
+            .text("Average placement")
+
+        //Add title
+        vis.svg.append("text")
+            .attr("class", "scatterplot-title title")
+            .attr("x", 20)
+            .attr("y", 0)
+            .attr("dy", ".35em")
+            .text("Prominent composers");
 
         //Add tooltip
         vis.tooltip = d3.select('body')
