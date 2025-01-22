@@ -155,58 +155,12 @@ function handleMouseOut() {
 }
 
 function handleCountryClick(event, d) {
+    // 更新下拉框选择
+    updateCountrySelect(d.properties.name);
+
     countrySelected(d);
 
-    const clickedCountry = d.properties.name;
-    const votesByCountry = calculateVotesByCountry(filteredVoteData);
-
-    const voters = [];
-    let maxPoints = 0;
-    let minPoints = Infinity;
-
-    if (votesByCountry[clickedCountry]) {
-        Object.entries(votesByCountry).forEach(([fromCountry, toCountryVotes]) => {
-            const totalPoints = toCountryVotes[clickedCountry] || 0;
-            if (totalPoints > 0) {
-                voters.push({ country: fromCountry, points: totalPoints });
-                maxPoints = Math.max(maxPoints, totalPoints);
-                minPoints = Math.min(minPoints, totalPoints);
-                console.log(`Filtered data - ${fromCountry} gave ${totalPoints} points to ${clickedCountry}`);
-            }
-        });
-    }
-
-    d3.select('body').node()._hoverData = {
-        clickedCountry,
-        voters,
-        minPoints,
-        maxPoints
-    };
-
-    const svg = d3.select('#map svg');
-    svg.selectAll('.country')
-        .style('fill', '#69b3a2')
-        .classed('clicked', false);
-
-    d3.select(event.currentTarget)
-        .style('fill', 'rgb(0, 0, 0)')
-        .classed('clicked', true);
-
-    svg.selectAll('.country')
-        .filter(function(d) {
-            const voter = voters.find(v => v.country === d.properties.name);
-            if (voter) {
-                const intensity = calculateColorIntensity(voter.points, minPoints, maxPoints);
-                const redValue = Math.round((255 - (intensity / 100) * 255));
-                const greenValue = Math.round((intensity / 100) * 50);
-                const colorValue = `rgb(${(255 - redValue)+100}, ${greenValue}, ${greenValue})`;
-
-                d3.select(this).style('fill', colorValue);
-                return true;
-            }
-            return false;
-        })
-        .classed('clicked', true);
+    updateMapColors(d.properties.name);
 }
 
 function calculateVotesByCountry(voteData) {
@@ -236,17 +190,74 @@ function calculateColorIntensity(points, minPoints, maxPoints) {
     return 50 + ((maxPoints - minPoints)/(points - minPoints) ) * 50;
 }
 
-function updateMapVisualization(filteredVotes) {
-    filteredVoteData = filteredVotes;
+function updateMapColors(countryName) {
+    const clickedCountry = countryName;
+    const votesByCountry = calculateVotesByCountry(filteredVoteData);
+
+    const voters = [];
+    let maxPoints = 0;
+    let minPoints = Infinity;
+
+    if (votesByCountry[clickedCountry]) {
+        Object.entries(votesByCountry).forEach(([fromCountry, toCountryVotes]) => {
+            const totalPoints = toCountryVotes[clickedCountry] || 0;
+            if (totalPoints > 0) {
+                voters.push({ country: fromCountry, points: totalPoints });
+                maxPoints = Math.max(maxPoints, totalPoints);
+                minPoints = Math.min(minPoints, totalPoints);
+            }
+        });
+    }
+
+    d3.select('body').node()._hoverData = {
+        clickedCountry,
+        voters,
+        minPoints,
+        maxPoints
+    };
 
     const svg = d3.select('#map svg');
+
     svg.selectAll('.country')
         .style('fill', '#69b3a2')
         .classed('clicked', false);
 
-    const clickedElement = svg.select('.clicked').node();
-    if (clickedElement) {
-        const event = new Event('click');
-        clickedElement.dispatchEvent(event);
+    svg.selectAll('.country')
+        .filter(d => d.properties.name === clickedCountry)
+        .style('fill', 'rgb(0, 0, 0)')
+        .classed('clicked', true);
+
+    svg.selectAll('.country')
+        .filter(function(d) {
+            const voter = voters.find(v => v.country === d.properties.name);
+            if (voter) {
+                const intensity = calculateColorIntensity(voter.points, minPoints, maxPoints);
+                const redValue = Math.round((255 - (intensity / 100) * 255));
+                const greenValue = Math.round((intensity / 100) * 50);
+                const colorValue = `rgb(${(255 - redValue)+100}, ${greenValue}, ${greenValue})`;
+
+                d3.select(this).style('fill', colorValue);
+                return true;
+            }
+            return false;
+        })
+        .classed('clicked', true);
+}
+
+function updateMapVisualization(filteredVotes) {
+    filteredVoteData = filteredVotes;
+
+    if (selectedCountry) {
+        updateMapColors(selectedCountry);
+    } else {
+        const svg = d3.select('#map svg');
+        svg.selectAll('.country')
+            .style('fill', '#69b3a2')
+            .classed('clicked', false);
     }
+}
+
+function updateCountrySelect(countryName) {
+    d3.select('#country-select').property('value', countryName);
+    selectedCountry = countryName;
 }

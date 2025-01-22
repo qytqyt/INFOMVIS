@@ -1,9 +1,24 @@
+function getCountryOptions() {
+    return [
+        'Albania', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
+        'Belgium', 'Bosnia and Herzegovina', 'Bulgaria', 'Croatia', 'Cyprus',
+        'Czech Republic', 'Denmark', 'Estonia', 'Finland', 'France',
+        'Georgia', 'Germany', 'Greece', 'Hungary', 'Iceland',
+        'Ireland', 'Israel', 'Italy', 'Latvia', 'Lithuania',
+        'Malta', 'Moldova', 'Monaco', 'Montenegro', 'Netherlands',
+        'North Macedonia', 'Norway', 'Poland', 'Portugal', 'Romania',
+        'Russia', 'San Marino', 'Serbia', 'Serbia and Montenegro', 'Slovakia',
+        'Slovenia', 'Spain', 'Sweden', 'Switzerland', 'Turkey',
+        'Ukraine', 'England'
+    ];
+}
+
 let scatterplot;
 let map;
 let selectedCountry = null;
 let startYear = null;
 let endYear = null;
-let filteredVoteData = []; // Add this global variable
+let filteredVoteData = [];
 
 function initializeApp() {
     createFilterControls();
@@ -57,7 +72,10 @@ function createFilterControls() {
         .attr('class', 'filter-select')
         .on('change', function() {
             selectedCountry = this.value;
-            updateVisualizations();
+            const countryData = {
+                properties: { name: this.value }
+            };
+            handleCountryClick(null, countryData);
         });
 }
 
@@ -111,14 +129,16 @@ function initializeFilters(contestantsData) {
             .text(year);
     });
 
-    // Select country
-    const countries = [...new Set(contestantsData.map(d => d.country))].sort();
+    // Initialize country filter with Eurovision countries
     const countrySelect = d3.select('#country-select');
+    countrySelect.selectAll('option').remove();
+
     countrySelect.append('option')
         .attr('value', '')
         .text('Select Country');
 
-    countries.forEach(country => {
+    const countries = getCountryOptions();
+    countries.sort().forEach(country => {
         countrySelect.append('option')
             .attr('value', country)
             .text(country);
@@ -282,3 +302,8 @@ function countrySelected(d){
 
 // Initialize app when document is loaded
 document.addEventListener('DOMContentLoaded', initializeApp);
+
+function updateCountrySelect(countryName) {
+    d3.select('#country-select').property('value', countryName);
+    selectedCountry = countryName;
+}
