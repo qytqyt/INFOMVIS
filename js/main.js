@@ -146,7 +146,9 @@ function initializeFilters(contestantsData) {
 }
 
 function filterData(data) {
-    let filteredData = data;
+    if (!data || data.length === 0) return [];
+
+    let filteredData = [...data];
 
     if (startYear || endYear) {
         const start = startYear ? +startYear : -Infinity;
@@ -159,13 +161,23 @@ function filterData(data) {
     }
 
     if (selectedCountry) {
-        if ('country' in filteredData[0]) {
+        // Check if we're dealing with contestants data or votes data
+        const isContestantsData = 'country' in data[0];
+
+        if (isContestantsData) {
+            // For contestants data
             filteredData = filteredData.filter(d => d.country === selectedCountry);
         } else {
-            filteredData = filteredData.filter(d =>
-                d.from_country_id === selectedCountry ||
-                d.to_country_id === selectedCountry
-            );
+            // For votes data, match country codes using countryCodeToName
+            const selectedCountryCode = Object.entries(countryCodeToName)
+                .find(([code, name]) => name === selectedCountry)?.[0];
+
+            if (selectedCountryCode) {
+                filteredData = filteredData.filter(d =>
+                    d.from_country_id === selectedCountryCode ||
+                    d.to_country_id === selectedCountryCode
+                );
+            }
         }
     }
 

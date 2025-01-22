@@ -155,12 +155,13 @@ function handleMouseOut() {
 }
 
 function handleCountryClick(event, d) {
-    // 更新下拉框选择
     updateCountrySelect(d.properties.name);
 
     countrySelected(d);
 
-    updateMapColors(d.properties.name);
+    let newFilteredVoteData = filterData(map.data);
+
+    updateMapVisualization(newFilteredVoteData);
 }
 
 function calculateVotesByCountry(voteData) {
@@ -245,8 +246,35 @@ function updateMapColors(countryName) {
 }
 
 function updateMapVisualization(filteredVotes) {
-    filteredVoteData = filteredVotes;
+    // year filter
+    let yearFilteredVotes = filteredVotes;
+    if (startYear || endYear) {
+        const start = startYear ? +startYear : -Infinity;
+        const end = endYear ? +endYear : Infinity;
 
+        yearFilteredVotes = yearFilteredVotes.filter(d => {
+            const year = +d.year;
+            return year >= start && year <= end;
+        });
+    }
+
+    // country filter
+    if (selectedCountry) {
+        const selectedCountryCode = Object.entries(countryCodeToName)
+            .find(([code, name]) => name === selectedCountry)?.[0];
+
+        if (selectedCountryCode) {
+            yearFilteredVotes = yearFilteredVotes.filter(d =>
+                d.from_country_id === selectedCountryCode ||
+                d.to_country_id === selectedCountryCode
+            );
+        }
+    }
+
+    // Update the global filtered vote data
+    filteredVoteData = yearFilteredVotes;
+
+    // Update map colors
     if (selectedCountry) {
         updateMapColors(selectedCountry);
     } else {
