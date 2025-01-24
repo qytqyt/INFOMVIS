@@ -167,17 +167,6 @@ function filterData(data) {
         if (isContestantsData) {
             // For contestants data
             filteredData = filteredData.filter(d => d.country === selectedCountry);
-        } else {
-            // For votes data, match country codes using countryCodeToName
-            const selectedCountryCode = Object.entries(countryCodeToName)
-                .find(([code, name]) => name === selectedCountry)?.[0];
-
-            if (selectedCountryCode) {
-                filteredData = filteredData.filter(d =>
-                    d.from_country_id === selectedCountryCode ||
-                    d.to_country_id === selectedCountryCode
-                );
-            }
         }
     }
 
