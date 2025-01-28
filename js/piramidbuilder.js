@@ -223,14 +223,14 @@ function loadYearData(year, target, options, country) {
     // Filter for selected year
     const yearData = data.filter(d => +d.year === +year);
 
-    const aggregatedData = Array.from(d3.group(yearData, d => d.to_country))
-        .map(([country, votes]) => {
+    const aggregatedData = Array.from(d3.group(yearData, d => d.to_country_id))
+        .map(([countryCode, votes]) => {
           const jury = d3.sum(votes, v => Number(v.jury_points) || 0);
           const tele = d3.sum(votes, v => Number(v.tele_points) || 0);
           const total = d3.sum(votes, v => Number(v.total_points) || 0);
 
           return {
-            to_country: country,
+            to_country: countryCode,
             tele_points: tele || 0,
             jury_points: jury || 0,
             total_points: total

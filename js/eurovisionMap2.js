@@ -162,6 +162,27 @@ function handleCountryClick(event, d) {
     let newFilteredVoteData = filterData(map.data);
 
     updateMapVisualization(newFilteredVoteData);
+
+    const countryCode = Object.entries(countryCodeToName)
+        .find(([code, name]) => name === d.properties.name)?.[0];
+
+    if (countryCode) {
+        const yearSelect = document.querySelector('#year-select');
+        const currentYear = yearSelect.value;
+
+        loadYearData(currentYear, '#piramid-container', {
+            width: 500,
+            height: 400,
+            barHeight: 7.5,
+            padding: 5,
+            style: {
+                leftBarColor: '#006837',
+                rightBarColor: '#006837',
+                tooltipBG: '#F0F0F0',
+                tooltipColor: '#202020'
+            }
+        }, countryCode);
+    }
 }
 
 function calculateVotesByCountry(voteData) {
