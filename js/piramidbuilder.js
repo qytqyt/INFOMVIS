@@ -213,36 +213,21 @@ function pyramidBuilder(data, target, options, country) {
 
 // Load and process data for specific year
 function loadYearData(year, target, options, country) {
+  // Only proceed if year is 2016 or later
+  if (+year < 2016) {
+    console.warn('Data visualization is only available for years 2016 and later');
+    return;
+  }
+
   d3.csv('resources/votes.csv').then((data) => {
     // Filter for selected year
     const yearData = data.filter(d => +d.year === +year);
 
-    // Aggregate votes by country
-    // const aggregatedData = Array.from(d3.group(yearData, d => d.to_country))
-    //     .map(([country, votes]) => ({
-    //         to_country: country,
-    //         tele_points: d3.sum(votes, v => +v.tele_points || 0),
-    //         jury_points: d3.sum(votes, v => +v.jury_points || 0),
-    //         total_points: d3.sum(votes, v => (+v.tele_points || 0) + (+v.jury_points || 0))
-    //     }));
-
     const aggregatedData = Array.from(d3.group(yearData, d => d.to_country))
         .map(([country, votes]) => {
-          const total = d3.sum(votes, v => Number(v.total_points) || 0);
-          // year <= 2015, split half of total_points between jury_points and tele_points
-          if (+year <= 2015) {
-            const halfTotal = total / 2;
-            return {
-              to_country: country,
-              tele_points: halfTotal,
-              jury_points: halfTotal,
-              total_points: total
-            };
-          }
-
-          // Normal processing of year >= 2016
           const jury = d3.sum(votes, v => Number(v.jury_points) || 0);
           const tele = d3.sum(votes, v => Number(v.tele_points) || 0);
+          const total = d3.sum(votes, v => Number(v.total_points) || 0);
 
           return {
             to_country: country,
@@ -266,7 +251,10 @@ function loadYearData(year, target, options, country) {
 function initVisualization(target, options, country) {
   // Load available years
   d3.csv('resources/votes.csv').then((data) => {
-    const years = [...new Set(data.map(d => d.year))].sort((a, b) => +a - +b);
+    // Filter for years 2016 and later, then sort
+    const years = [...new Set(data.map(d => d.year))]
+        .filter(year => +year >= 2016)
+        .sort((a, b) => +a - +b);
 
     const yearSelect = document.querySelector('#year-select');
     if (!yearSelect) {
@@ -274,10 +262,10 @@ function initVisualization(target, options, country) {
       return;
     }
 
-    // delete current year option
+    // Clear current year options
     yearSelect.innerHTML = '';
 
-    // add year option
+    // Add year options
     years.forEach(year => {
       const option = document.createElement('option');
       option.value = year;
@@ -285,7 +273,7 @@ function initVisualization(target, options, country) {
       yearSelect.appendChild(option);
     });
 
-    // set default year(latest year) and load
+    // Set default year (latest year) and load data
     const initialYear = years[years.length - 1];
     yearSelect.value = initialYear;
 
