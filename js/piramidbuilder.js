@@ -7,7 +7,6 @@ function pyramidBuilder(data, target, options, country) {
   const totalHeight = numBars * (barHeight + padding);
 
   const containerWidth = d3.select(target).node().clientWidth;
-  const containerHeight = d3.select(target).node().clientHeight;
 
   const margin = {
     top: 20,
