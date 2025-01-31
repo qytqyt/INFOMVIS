@@ -105,7 +105,7 @@ function processData(contestantsData, votesData) {
 function initializeFilters(contestantsData) {
     const years = [...new Set(contestantsData.map(d => d.year))].sort();
 
-    // Select start year
+    
     const startYearSelect = d3.select('#start-year-select');
     startYearSelect.append('option')
         .attr('value', '')
@@ -117,7 +117,7 @@ function initializeFilters(contestantsData) {
             .text(year);
     });
 
-    // Select end year
+    
     const endYearSelect = d3.select('#end-year-select');
     endYearSelect.append('option')
         .attr('value', '')
@@ -129,7 +129,7 @@ function initializeFilters(contestantsData) {
             .text(year);
     });
 
-    // Initialize country filter with Eurovision countries
+    
     const countrySelect = d3.select('#country-select');
     countrySelect.selectAll('option').remove();
 
@@ -161,11 +161,11 @@ function filterData(data) {
     }
 
     if (selectedCountry) {
-        // Check if we're dealing with contestants data or votes data
+        
         const isContestantsData = 'country' in data[0];
 
         if (isContestantsData) {
-            // For contestants data
+            
             filteredData = filteredData.filter(d => d.country === selectedCountry);
         }
     }
@@ -202,37 +202,37 @@ function initializeVisualizations(contestantsData, votesData) {
     };
 }
 
-// Update end year options based on selected start year
+
 function updateEndYearOptions() {
     if (!startYear) return;
 
     const endYearSelect = d3.select('#end-year-select');
     const currentEndYear = endYearSelect.property('value');
 
-    // Get all available years from both contestants and votes data
+    
     const contestantYears = [...new Set(scatterplot.data.map(d => d.year))];
     const voteYears = [...new Set(map.data.map(d => d.year))];
     const years = [...new Set([...contestantYears, ...voteYears])].sort();
 
-    // Filter years that are greater than or equal to start year
+    
     const validEndYears = years.filter(year => year >= +startYear);
 
-    // Keep current selection if it's valid
+    
     const shouldKeepCurrentYear = currentEndYear && +currentEndYear >= +startYear;
 
-    // Store current selection
+    
     const currentSelection = endYearSelect.property('value');
 
-    // Remove all existing options
+    
     endYearSelect.selectAll('option').remove();
 
-    // Add default option
+    
     endYearSelect.append('option')
         .attr('value', '')
         .text('Select End Year')
         .property('selected', !currentSelection || !shouldKeepCurrentYear);
 
-    // Add year options
+    
     validEndYears.forEach(year => {
         endYearSelect.append('option')
             .attr('value', year)
@@ -240,46 +240,46 @@ function updateEndYearOptions() {
             .property('selected', year.toString() === currentSelection && shouldKeepCurrentYear);
     });
 
-    // Update end year if current selection is no longer valid
+    
     if (!shouldKeepCurrentYear) {
         endYear = null;
     }
 
-    // Update visualizations
+    
     updateVisualizations();
 }
 
-// Update start year options based on selected end year
+
 function updateStartYearOptions() {
     if (!endYear) return;
 
     const startYearSelect = d3.select('#start-year-select');
     const currentStartYear = startYearSelect.property('value');
 
-    // Get all available years from both contestants and votes data
+    
     const contestantYears = [...new Set(scatterplot.data.map(d => d.year))];
     const voteYears = [...new Set(map.data.map(d => d.year))];
     const years = [...new Set([...contestantYears, ...voteYears])].sort();
 
-    // Filter years that are less than or equal to end year
+    
     const validStartYears = years.filter(year => year <= +endYear);
 
-    // Keep current selection if it's valid
+    
     const shouldKeepCurrentYear = currentStartYear && +currentStartYear <= +endYear;
 
-    // Store current selection
+    
     const currentSelection = startYearSelect.property('value');
 
-    // Remove all existing options
+    
     startYearSelect.selectAll('option').remove();
 
-    // Add default option
+    
     startYearSelect.append('option')
         .attr('value', '')
         .text('Select Start Year')
         .property('selected', !currentSelection || !shouldKeepCurrentYear);
 
-    // Add year options
+    
     validStartYears.forEach(year => {
         startYearSelect.append('option')
             .attr('value', year)
@@ -287,12 +287,12 @@ function updateStartYearOptions() {
             .property('selected', year.toString() === currentSelection && shouldKeepCurrentYear);
     });
 
-    // Update start year if current selection is no longer valid
+    
     if (!shouldKeepCurrentYear) {
         startYear = null;
     }
 
-    // Update visualizations
+    
     updateVisualizations();
 }
 
@@ -301,7 +301,7 @@ function countrySelected(d){
     scatterplot.updateVis();
 }
 
-// Initialize app when document is loaded
+
 document.addEventListener('DOMContentLoaded', initializeApp);
 
 function updateCountrySelect(countryName) {

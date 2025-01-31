@@ -17,7 +17,6 @@ class Scatterplot {
     initData() {
         let composers = [];
 
-        //Create a list of all composers that ever created a song in Eurovision
         this.data.forEach(d => {
             d.composers.split(';').forEach(function(myString) {
                 if(myString && d.place_contest > 0){
@@ -28,7 +27,6 @@ class Scatterplot {
 
         const fullComposers = [];
 
-        //Create a list per composer of needed information (composer, amount, average_placement and country)
         composers.forEach(ele => {
             let index = fullComposers.findIndex(d => d.composer === ele.composer);
             if(index > -1)
@@ -51,7 +49,6 @@ class Scatterplot {
         return fullComposers;
     }
 
-    //Filters the data based on the year.
     transformData(filter) {
         let ogData = this.initData();
 
@@ -64,7 +61,6 @@ class Scatterplot {
         }
 
 
-        //Measure how often an 'amount' appears in the data
         let filterNumber = 0;
         let counter = {};
 
@@ -76,8 +72,6 @@ class Scatterplot {
                 counter[d.amount] = 1;
             }
         });
-        // If, for example, in the data more than 75 composers have appeared twice, then that gets removed from the results
-        // This is to make it look cleaner
         for (let key in counter){
             if(counter[key] > 75){
                 filterNumber = filterNumber > key ? filterNumber : key;

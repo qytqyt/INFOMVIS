@@ -28,7 +28,7 @@ function pyramidBuilder(data, target, options, country) {
     tooltipColor: options.style?.tooltipColor || '#202020',
   };
 
-  // Max value for x-scales
+  
   const maxValue = Math.ceil(
       Math.max(
           d3.max(data, (d) => d.tele_points + 20),
@@ -36,7 +36,7 @@ function pyramidBuilder(data, target, options, country) {
       )
   );
 
-  // Scales
+  
   const xScaleLeft = d3.scaleLinear().domain([0, maxValue]).range([sectorWidth, 0]);
   const xScaleRight = d3.scaleLinear().domain([0, maxValue]).range([0, sectorWidth]);
   const yScale = d3
@@ -45,11 +45,11 @@ function pyramidBuilder(data, target, options, country) {
       .range([0, totalHeight])
       .padding(0.1);
 
-  // Container
+  
   const container = d3.select(target)
       .style("overflow-y", "auto");
 
-  // Create SVG
+  
   const svg = container
       .append('svg')
       .attr('width', containerWidth)
@@ -59,7 +59,7 @@ function pyramidBuilder(data, target, options, country) {
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-  // Left bars (Televote)
+  
   const leftBarGroup = chartGroup
       .append('g')
       .attr('transform', `translate(${leftBegin},0) scale(-1,1)`);
@@ -76,7 +76,7 @@ function pyramidBuilder(data, target, options, country) {
       .attr('height', yScale.bandwidth())
       .attr('fill', (d) => d.to_country === country ? 'black' : style.leftBarColor);
 
-  // Right bars (Jury)
+  
   const rightBarGroup = chartGroup
       .append('g')
       .attr('transform', `translate(${rightBegin},0)`);
@@ -93,7 +93,7 @@ function pyramidBuilder(data, target, options, country) {
       .attr('height', yScale.bandwidth())
       .attr('fill', (d) => d.to_country === country ? 'black' : style.rightBarColor);
 
-  // Middle labels
+  
   chartGroup
       .selectAll('.label.middle')
       .data(data)
@@ -106,7 +106,7 @@ function pyramidBuilder(data, target, options, country) {
       .attr('text-anchor', 'middle')
       .text((d) => d.to_country);
 
-  // Axes
+  
   const yAxisLeft = d3.axisRight(yScale).tickSize(0).tickFormat('');
   const yAxisRight = d3.axisLeft(yScale).tickSize(0).tickFormat('');
   const xAxisLeft = d3.axisBottom(xScaleLeft).ticks(5);
@@ -136,7 +136,7 @@ function pyramidBuilder(data, target, options, country) {
       .attr('transform', `translate(${rightBegin},${totalHeight})`)
       .call(xAxisRight);
 
-  // Axis Labels
+  
   chartGroup
       .append("text")
       .attr("class", "label axis-left")
@@ -153,7 +153,7 @@ function pyramidBuilder(data, target, options, country) {
       .attr("text-anchor", "middle")
       .text("Jury Vote");
 
-  // Tooltip
+  
   const tooltipDiv = d3.select(target)
       .append("div")
       .attr("class", "tooltip")
@@ -164,10 +164,10 @@ function pyramidBuilder(data, target, options, country) {
       .style("pointer-events", "none")
       .style("opacity", 0);
 
-  // Tooltip interactions
+  
   svg.selectAll("rect")
       .on("mouseover", function(event, d) {
-        // Highlight bars
+        
         svg.selectAll("rect")
             .filter((barData) => barData.to_country === d.to_country)
             .attr("fill", "yellow");
@@ -199,7 +199,7 @@ function pyramidBuilder(data, target, options, country) {
         tooltipDiv.transition().duration(500).style("opacity", 0);
       });
 
-  // Add fullscreen toggle
+  
   d3.select(target)
       .append("div")
       .attr("class", "expand-icon")
@@ -211,16 +211,16 @@ function pyramidBuilder(data, target, options, country) {
       .on("click", () => toggleFullscreen(target, data, options, country));
 }
 
-// Load and process data for specific year
+
 function loadYearData(year, target, options, country) {
-  // Only proceed if year is 2016 or later
+  
   if (+year < 2016) {
     console.warn('Data visualization is only available for years 2016 and later');
     return;
   }
 
   d3.csv('resources/votes.csv').then((data) => {
-    // Filter for selected year
+    
     const yearData = data.filter(d => +d.year === +year);
 
     const aggregatedData = Array.from(d3.group(yearData, d => d.to_country_id))
@@ -237,21 +237,21 @@ function loadYearData(year, target, options, country) {
           };
         });
 
-    // Sort by total points
+    
     aggregatedData.sort((a, b) => b.total_points - a.total_points);
 
-    // Build pyramid with processed data
+    
     pyramidBuilder(aggregatedData, target, options, country);
   }).catch(error => {
     console.error('Error loading or processing data:', error);
   });
 }
 
-// Initialize visualization
+
 function initVisualization(target, options, country) {
-  // Load available years
+  
   d3.csv('resources/votes.csv').then((data) => {
-    // Filter for years 2016 and later, then sort
+    
     const years = [...new Set(data.map(d => d.year))]
         .filter(year => +year >= 2016)
         .sort((a, b) => +a - +b);
@@ -262,10 +262,10 @@ function initVisualization(target, options, country) {
       return;
     }
 
-    // Clear current year options
+    
     yearSelect.innerHTML = '';
 
-    // Add year options
+    
     years.forEach(year => {
       const option = document.createElement('option');
       option.value = year;
@@ -273,7 +273,7 @@ function initVisualization(target, options, country) {
       yearSelect.appendChild(option);
     });
 
-    // Set default year (latest year) and load data
+    
     const initialYear = years[years.length - 1];
     yearSelect.value = initialYear;
 
@@ -304,7 +304,7 @@ function toggleFullscreen(target, data, options, country) {
   pyramidBuilder(data, target, options, country);
 }
 
-// Add CSS styles
+
 const style = document.createElement('style');
 style.textContent = `
   .fullscreen {
@@ -355,7 +355,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Initialize when document loads
+
 document.addEventListener('DOMContentLoaded', () => {
   const target = '#piramid-container';
   const options = {
@@ -374,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initVisualization(target, options, country);
 
-  // Handle ESC key for exiting fullscreen
+  
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       const container = d3.select(target);
