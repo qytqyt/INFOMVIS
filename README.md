@@ -1,0 +1,1 @@
+## This is our project for Information visualization , everything you need to run the project is inside the webapp folder , it's a simple javascript application with an index.html that you can run in any IDE and will start a webserver
