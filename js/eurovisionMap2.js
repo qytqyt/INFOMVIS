@@ -240,15 +240,18 @@ function updateMapColors(countryName) {
 
     const svg = d3.select('#map svg');
 
+    // Reset all countries to white initially
     svg.selectAll('.country')
-        .style('fill', '#69b3a2')
+        .style('fill', '#ffffff') // White for no votes
         .classed('clicked', false);
 
+    // Highlight the selected country in black
     svg.selectAll('.country')
         .filter(d => d.properties.name === clickedCountry)
         .style('fill', 'rgb(0, 0, 0)')
         .classed('clicked', true);
 
+    // Apply colors only to countries that have voted for the selected country
     svg.selectAll('.country')
         .filter(function(d) {
             const voter = voters.find(v => v.country === d.properties.name);
@@ -256,7 +259,7 @@ function updateMapColors(countryName) {
                 const intensity = calculateColorIntensity(voter.points, minPoints, maxPoints);
                 const redValue = Math.round((255 - (intensity / 100) * 255));
                 const greenValue = Math.round((intensity / 100) * 50);
-                const colorValue = `rgb(${(255 - redValue)+100}, ${greenValue}, ${greenValue})`;
+                const colorValue = `rgb(${(255 - redValue) + 100}, ${greenValue}, ${greenValue})`;
 
                 d3.select(this).style('fill', colorValue);
                 return true;
@@ -265,6 +268,7 @@ function updateMapColors(countryName) {
         })
         .classed('clicked', true);
 }
+
 
 function updateMapVisualization(filteredVotes) {
     // year filter
