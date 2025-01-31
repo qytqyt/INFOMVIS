@@ -52,7 +52,6 @@ class Scatterplot {
     transformData(filter) {
         let ogData = this.initData();
 
-        //Filter the results based on the year selected
         let filteredResults = ogData;
         if(filter.length > 0) {
             filteredResults = ogData.filter(result => {
@@ -81,19 +80,17 @@ class Scatterplot {
         return filteredResults.filter(d => d.amount > filterNumber);
     }
 
-    //Initialises the scatterplot
     initVis(){
         let vis = this;
 
         vis.country = "";
 
-        // Init the margings
         vis.margin = {top: 10, right: 30, bottom: 50, left: 45};
 
         vis.width = document.getElementById(vis.parentElement).getBoundingClientRect().width - vis.margin.left - vis.margin.right;
         vis.height = document.getElementById(vis.parentElement).getBoundingClientRect().height - vis.margin.top - vis.margin.bottom - 60;
 
-        // append the svg object to the body of the page
+
         vis.svg = d3.select("#" + vis.parentElement)
             .append("svg")
             .attr("width", vis.width + vis.margin.left + vis.margin.right)
@@ -103,7 +100,7 @@ class Scatterplot {
                 "translate(" + vis.margin.left + "," + vis.margin.top + ")");
 
 
-        // Add X axis
+
         vis.x = d3.scaleLinear()
             .domain([d3.min(this.displayData, d => d.amount) - 1, d3.max(this.displayData, d => d.amount)])
             .range([ 0, vis.width ]);
@@ -115,14 +112,14 @@ class Scatterplot {
             .attr("class", "x-axis axis")
             .attr("transform", "translate(0," + vis.height + ")");
 
-        // Add X axis label:
+
         vis.svg.append("text")
             .attr("text-anchor", "middle")
             .attr("x", vis.width/2)
             .attr("y", vis.height + vis.margin.top + 30)
             .text("Amount of appearances");
 
-        // Add Y axis
+
         vis.y = d3.scaleLinear()
             .domain([d3.max(this.displayData, d => d.average_placement) + 1, 1])
             .range([vis.height, 0]);
@@ -133,7 +130,7 @@ class Scatterplot {
         vis.svg.append("g")
             .attr("class", "y-axis axis");
 
-        // Y axis label:
+
         vis.svg.append("text")
             .attr("text-anchor", "middle")
             .attr("transform", "rotate(-90)")
@@ -141,7 +138,7 @@ class Scatterplot {
             .attr("x", -vis.margin.top - vis.height/2)
             .text("Average placement")
 
-        //Add title
+
         vis.svg.append("text")
             .attr("class", "scatterplot-title title")
             .attr("x", 20)
@@ -149,7 +146,7 @@ class Scatterplot {
             .attr("dy", ".35em")
             .text("Prominent composers");
 
-        //Add tooltip
+
         vis.tooltip = d3.select('body')
             .append('div')
             .attr('class', 'tooltip')
@@ -158,9 +155,8 @@ class Scatterplot {
         vis.updateVis();
     }
 
-    //Render the necessary data of the composer on the modal
+
     showInformation(data){
-        //Transform the data for rendering on screen
         let newData = this.data.filter(d => d.composers.includes(data.composer));
         let wikipediaString = 'https://wikipedia.org/wiki/' + data.composer.replace(' ', '_');
 
@@ -171,14 +167,10 @@ class Scatterplot {
             wikipedia: wikipediaString};
 
 
-        //Make the modal appear
-        // Get the modal
         let modal = document.getElementById("myModal");
-        // Get the <span> element that closes the modal
         let span = document.getElementsByClassName("close")[0];
         modal.style.display = "block";
 
-        //Make the modal closable
         span.onclick = function() {
             modal.style.display = "none";
             deleteInformation();
@@ -191,14 +183,11 @@ class Scatterplot {
             }
         }
 
-        //Render the text on  screen
         let table = document.getElementById("composer-table-body");
 
         tableData.allEntries.forEach(entry => {
-            // Get the table and insert a new row at the end
             let newRow = table.insertRow(table.rows.length);
 
-            // Insert data into cells of the new row
             newRow.insertCell(0).innerHTML = entry.year;
             newRow.insertCell(1).innerHTML = entry.performer;
             newRow.insertCell(2).innerHTML = entry.song;
@@ -212,7 +201,6 @@ class Scatterplot {
 
 
         function deleteInformation(){
-            //Empty the text on  screen
             let trs = document.querySelectorAll('#composer-table-body tr');
 
             console.log(trs);
@@ -228,22 +216,20 @@ class Scatterplot {
     }
 
 
-
-    //Update the scatterplot
     updateVis() {
         let vis = this;
 
-        // get the layers
+
         let scatterpoints = vis.svg.selectAll(".dot")
             .data(vis.displayData);
 
-        // Update the x axis
+
         vis.x.domain([d3.min(this.displayData, d => d.amount) - 1, d3.max(this.displayData, d => d.amount)])
 
-        // Update the y axis
+
         vis.y.domain([d3.max(this.displayData, d => d.average_placement) + 1, 1])
 
-        //Update the scatterplot
+
         scatterpoints.enter().append("circle")
             .attr("class", "dot")
             .merge(scatterpoints)
@@ -253,7 +239,6 @@ class Scatterplot {
             .style("fill", d => this.colourCountrySelected(d))
             .on("click", (e,d) => this.showInformation(d))
             .on("mouseover", function(e, d) {
-                //When hovering change colour + show tooltip
                 d3.select(this).style("fill", "pink");
 
                 vis.tooltip.style('opacity', 1)
@@ -266,7 +251,6 @@ class Scatterplot {
                     .style('top', (e.pageY - 20) + 'px');
             })
             .on("mouseout", function(e, d) {
-                //Change colour depending on if a country is selected or not
                 d3.select(this).style("fill", data => {
                     if(vis.country && d.country.includes(vis.country)) {
                     return "red";
@@ -276,12 +260,12 @@ class Scatterplot {
             })
         scatterpoints.exit().transition().remove();
 
-        // Call axis functions with the new domain
+
         vis.svg.select(".x-axis").transition().call(vis.xAxis);
         vis.svg.select(".y-axis").transition().call(vis.yAxis);
     }
 
-    //Change colour depending on if country is selected or not
+
     colourCountrySelected(d){
         let vis = this;
         if(vis.country && d.country.includes(vis.country)) {
